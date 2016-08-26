@@ -17,7 +17,7 @@ namespace AvePlazaWeather
 	{
 		private DispatcherTimer _timer;
 		private BuildAzure.IoT.Adafruit.BME280.BME280Sensor _bme280;
-		DeviceClient _azureClient;
+		//DeviceClient _azureClient;
 
 		const float SeaLevelPressure = 1022.00f;
 		const string IotHubUri = "AvePlazaWeather.azure-devices.net";
@@ -37,10 +37,7 @@ namespace AvePlazaWeather
 			_bme280 = new BuildAzure.IoT.Adafruit.BME280.BME280Sensor();
 			await _bme280.Initialize();
 			Debug.WriteLine("BME280Sensor is initialized");
-
-			_azureClient = DeviceClient.Create(
-				IotHubUri, new DeviceAuthenticationWithRegistrySymmetricKey(DeviceName, DeviceKey));
-
+			
 			_timer = new DispatcherTimer();
 			_timer.Interval = TimeSpan.FromMinutes(30);
 			_timer.Tick += CheckWeather;
@@ -81,18 +78,19 @@ namespace AvePlazaWeather
 		{
 			var messageString = JsonConvert.SerializeObject(data);
 			var message = new Message(Encoding.ASCII.GetBytes(messageString));
+			Debug.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
+
+			DeviceClient azureClient = DeviceClient.Create(
+				IotHubUri, new DeviceAuthenticationWithRegistrySymmetricKey(DeviceName, DeviceKey));
 
 			try
 			{
-				Debug.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
-				await _azureClient.SendEventAsync(message);
+				await azureClient.SendEventAsync(message);
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
-				throw;
 			}
-
 		}
 	}
 }
