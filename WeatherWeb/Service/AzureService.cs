@@ -3,44 +3,56 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.ServiceBus.Messaging;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using WeatherWeb.Models;
 
 namespace WeatherWeb.Service
 {
-	public class AzureService
-	{
-		static string ConnectionString = "";
-		static string iotHubD2cEndpoint = "messages/events";
-		static EventHubClient _eventHubClient;
+    public class AzureService
+    {
+        readonly string _connectionString;
+        string iotHubD2cEndpoint = "messages/events";
+        
+        public AzureService(IOptions<AppSettings> settings)
+        {
+            _connectionString = settings.Value.EventHubConnectionString;
+        }
+        public async Task<List<Weather>> ReceiveMessagesAsync()
+        {
+            List<Weather> result = new List<Weather>();
+            var eventHubClient = EventHubClient.CreateFromConnectionString(_connectionString, iotHubD2cEndpoint);
+            var d2cPartitions = eventHubClient.GetRuntimeInformation().PartitionIds;
 
-		public static async Task<List<Weather>> ReceiveMessagesAsync()
-		{
-			List<Weather> result = new List<Weather>();
+            string partition = d2cPartitions.Last();
 
-			_eventHubClient = EventHubClient.CreateFromConnectionString(ConnectionString, iotHubD2cEndpoint);
-			var d2cPartitions = _eventHubClient.GetRuntimeInformation().PartitionIds;
+            var eventHubReceiver = eventHubClient.GetDefaultConsumerGroup().CreateReceiver(partition, DateTime.UtcNow.AddDays(-3));
+            var runtimeInfo = await eventHubClient.GetPartitionRuntimeInformationAsync(partition);
+            var maxSequenceNumber = runtimeInfo.LastEnqueuedSequenceNumber;
 
-			string partition = d2cPartitions.Last();
-			{
-				var eventHubReceiver = _eventHubClient.GetDefaultConsumerGroup().CreateReceiver(
-					partition, DateTime.UtcNow.AddDays(-3));
-				EventData eventData = await eventHubReceiver.ReceiveAsync();
-				if (eventData == null)
-				{
-					return result;
-				}
+            while (true)
+            {
+                var eventsData = (await eventHubReceiver.ReceiveAsync(2 * 24 * 3)).ToList();
+                if (!eventsData.Any())
+                {
+                    break;
+                }
 
-				string data = Encoding.UTF8.GetString(eventData.GetBytes());
-				var weather = JsonConvert.DeserializeObject<Weather>(data);
-				result.Add(weather);
-			}
+                foreach (var eventData in eventsData)
+                {
+                    string data = Encoding.UTF8.GetString(eventData.GetBytes());
+                    var weather = JsonConvert.DeserializeObject<Weather>(data);
+                    result.Add(weather);
+                }
 
-			return result;
-		}
-
-
-	}
+                if (eventsData.Last().SequenceNumber == maxSequenceNumber)
+                {
+                    break;
+                }
+            }
+            await eventHubReceiver.CloseAsync();
+            return result;
+        }
+    }
 }
