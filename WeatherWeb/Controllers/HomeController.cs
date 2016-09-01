@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using WeatherWeb.Models;
 using WeatherWeb.Service;
 
@@ -10,11 +11,18 @@ namespace WeatherWeb.Controllers
 {
     public class HomeController : Controller
     {
+        private IOptions<AppSettings> _settings;
+        public HomeController(IOptions<AppSettings> settings)
+        {
+            _settings = settings;
+        }
         public async Task<IActionResult> Index()
         {
-	        var model = new WeatherViewModel
+            var service = new AzureService(_settings);
+
+            var model = new WeatherViewModel
 	        {
-		        History = await AzureService.ReceiveMessagesAsync()
+		        History = await service.ReceiveMessagesAsync()
 			};
 
             return View(model);
