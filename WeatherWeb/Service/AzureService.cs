@@ -52,7 +52,7 @@ namespace WeatherWeb.Service
                 }
             }
             await eventHubReceiver.CloseAsync();
-            return result;
+            return result.OrderByDescending(item => item.Time).ToList();
         }
     }
 }

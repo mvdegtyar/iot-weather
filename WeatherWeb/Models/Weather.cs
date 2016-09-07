@@ -12,7 +12,7 @@ namespace WeatherWeb.Models
 
 		public float Altitude { get; set; }
 
-		public DateTime Time { get; set; }
+		public DateTimeOffset Time { get; set; }
 
 		public string Location { get; set; }
 	}
