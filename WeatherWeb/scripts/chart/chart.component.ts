@@ -1,22 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter } from '@angular/core';
 import { CORE_DIRECTIVES, DatePipe } from '@angular/common';
+import {MD_PROGRESS_CIRCLE_DIRECTIVES} from '@angular2-material/progress-circle';
 import { DataService } from '../services/DataService';
 import {GoogleChart} from '../directives/angular2-google-chart.directive';
 
 @Component({
     selector: 'chart',
     templateUrl: 'views/chart/chart.component.html',
-    directives: [CORE_DIRECTIVES, GoogleChart],
+    directives: [CORE_DIRECTIVES, GoogleChart, MD_PROGRESS_CIRCLE_DIRECTIVES],
     providers: [DataService]
 })
 export class ChartComponent implements OnInit {
-
+    public loading: boolean;
     public message: string;
     public values: any[];
+    public refreshRequest = new EventEmitter<any>();
 
     public line_ChartOptions = {
         title: 'Weather in Ave Plaze (for latest 3 days)',
-        width: '100%',
         height: 500,
         curveType: 'function',
         pointSize: 5,
@@ -48,25 +49,13 @@ export class ChartComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.dataService
-            .GetAll()
-            .subscribe(data => this.setData( data),
-                error => console.log(error),
-                () => console.log('Get all complete'));
+        this.refresh();
     }
 
     private setData(data) {
         var vals = new Array<any>();
 
-        //vals.push([
-        //    { label: 'Time', type: 'date' },
-        //    { label: 'temperature', type: 'number' },
-        //    { label: 'temperature_tooltip', role: 'tooltip', p: { html: true } },
-        //    { label: 'humidity', type: 'number' },
-        //    { label: 'humidity_tooltip', role: 'tooltip', p: { html: true } },
-        //]);
-
-         vals.push([
+        vals.push([
             { label: 'Time', type: 'date' },
             { label: 'temperature', type: 'number' },
             { label: 'humidity', type: 'number' },
@@ -77,22 +66,19 @@ export class ChartComponent implements OnInit {
             vals.push([time, dt.temperature, dt.humidity]);
         });
 
-        //data.forEach(function (dt) {
-        //    var time = new Date(dt.time);
-        //    vals.push([time, dt.temperature, this.createCustomTooltip('temperature', dt.temperature, time), dt.humidity, dt.humidity]);
-        //});
-
-        //data.forEach(dt =>
-        //        {
-        //            var time = new Date(dt.time);
-        //            vals.push([time, dt.temperature, this.createCustomTooltip('temperature', time, dt.temperature), dt.humidity, this.createCustomTooltip('humidity', time, dt.humidity)]);
-        //});
-
         this.line_ChartData = vals;
+        this.refreshRequest.next(vals);
     }
 
-    private createCustomTooltip(name, time, val) {
-        var tm = new DatePipe().transform(time, 'MMM dd - hh:mm');
-        return `<div style="margin: 10px; font-size: 1.5em"><b>${tm}</b></br>${name}:&nbsp<b>${val}</b></div>`;
+    refresh() {
+        this.loading = true;
+        this.dataService
+            .GetAll()
+            .subscribe(data => this.setData(data),
+            error => console.log(error),
+            () => {
+                    this.loading = false;
+                    console.log('Get all complete');
+            });
     }
 }

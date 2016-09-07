@@ -12,6 +12,7 @@ var core_1 = require('@angular/core');
 var platform_browser_1 = require('@angular/platform-browser');
 var app_routes_1 = require('./app.routes');
 var http_1 = require('@angular/http');
+var common_1 = require('@angular/common');
 var app_component_1 = require('./app.component');
 var home_component_1 = require('./home/home.component');
 var about_component_1 = require('./about/about.component');
@@ -29,7 +30,8 @@ var AppModule = (function () {
             ],
             declarations: [app_component_1.AppComponent, home_component_1.HomeComponent, about_component_1.AboutComponent, chart_component_1.ChartComponent],
             providers: [
-                app_routes_1.appRoutingProviders
+                app_routes_1.appRoutingProviders,
+                { provide: common_1.LocationStrategy, useClass: common_1.HashLocationStrategy }
             ],
             bootstrap: [app_component_1.AppComponent]
         }), 
@@ -38,3 +40,4 @@ var AppModule = (function () {
     return AppModule;
 }());
 exports.AppModule = AppModule;
+//# sourceMappingURL=app.module.js.map

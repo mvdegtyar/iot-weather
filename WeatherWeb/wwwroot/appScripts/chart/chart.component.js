@@ -10,14 +10,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var common_1 = require('@angular/common');
+var progress_circle_1 = require('@angular2-material/progress-circle');
 var DataService_1 = require('../services/DataService');
 var angular2_google_chart_directive_1 = require('../directives/angular2-google-chart.directive');
 var ChartComponent = (function () {
     function ChartComponent(dataService) {
         this.dataService = dataService;
+        this.refreshRequest = new core_1.EventEmitter();
         this.line_ChartOptions = {
             title: 'Weather in Ave Plaze (for latest 3 days)',
-            width: '100%',
             height: 500,
             curveType: 'function',
             pointSize: 5,
@@ -44,20 +45,10 @@ var ChartComponent = (function () {
         };
     }
     ChartComponent.prototype.ngOnInit = function () {
-        var _this = this;
-        this.dataService
-            .GetAll()
-            .subscribe(function (data) { return _this.setData(data); }, function (error) { return console.log(error); }, function () { return console.log('Get all complete'); });
+        this.refresh();
     };
     ChartComponent.prototype.setData = function (data) {
         var vals = new Array();
-        //vals.push([
-        //    { label: 'Time', type: 'date' },
-        //    { label: 'temperature', type: 'number' },
-        //    { label: 'temperature_tooltip', role: 'tooltip', p: { html: true } },
-        //    { label: 'humidity', type: 'number' },
-        //    { label: 'humidity_tooltip', role: 'tooltip', p: { html: true } },
-        //]);
         vals.push([
             { label: 'Time', type: 'date' },
             { label: 'temperature', type: 'number' },
@@ -67,26 +58,24 @@ var ChartComponent = (function () {
             var time = new Date(dt.time);
             vals.push([time, dt.temperature, dt.humidity]);
         });
-        //data.forEach(function (dt) {
-        //    var time = new Date(dt.time);
-        //    vals.push([time, dt.temperature, this.createCustomTooltip('temperature', dt.temperature, time), dt.humidity, dt.humidity]);
-        //});
-        //data.forEach(dt =>
-        //        {
-        //            var time = new Date(dt.time);
-        //            vals.push([time, dt.temperature, this.createCustomTooltip('temperature', time, dt.temperature), dt.humidity, this.createCustomTooltip('humidity', time, dt.humidity)]);
-        //});
         this.line_ChartData = vals;
+        this.refreshRequest.next(vals);
     };
-    ChartComponent.prototype.createCustomTooltip = function (name, time, val) {
-        var tm = new common_1.DatePipe().transform(time, 'MMM dd - hh:mm');
-        return "<div style=\"margin: 10px; font-size: 1.5em\"><b>" + tm + "</b></br>" + name + ":&nbsp<b>" + val + "</b></div>";
+    ChartComponent.prototype.refresh = function () {
+        var _this = this;
+        this.loading = true;
+        this.dataService
+            .GetAll()
+            .subscribe(function (data) { return _this.setData(data); }, function (error) { return console.log(error); }, function () {
+            _this.loading = false;
+            console.log('Get all complete');
+        });
     };
     ChartComponent = __decorate([
         core_1.Component({
             selector: 'chart',
             templateUrl: 'views/chart/chart.component.html',
-            directives: [common_1.CORE_DIRECTIVES, angular2_google_chart_directive_1.GoogleChart],
+            directives: [common_1.CORE_DIRECTIVES, angular2_google_chart_directive_1.GoogleChart, progress_circle_1.MD_PROGRESS_CIRCLE_DIRECTIVES],
             providers: [DataService_1.DataService]
         }), 
         __metadata('design:paramtypes', [DataService_1.DataService])
@@ -94,3 +83,4 @@ var ChartComponent = (function () {
     return ChartComponent;
 }());
 exports.ChartComponent = ChartComponent;
+//# sourceMappingURL=chart.component.js.map

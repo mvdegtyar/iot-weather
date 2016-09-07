@@ -20,14 +20,18 @@ var GoogleChart = (function () {
             GoogleChart._googleLoaded = true;
             google.charts.load('current', { 'packages': ['corechart', 'gauge', 'line'] });
         }
-        setTimeout(function () { return _this.drawGraph(_this.chartOptions, _this.chartType, _this.chartData, _this._element); }, 1000);
+        this.refreshRequest.subscribe(function (data) {
+            _this.chartData = data;
+            _this.drawGraph(_this.chartOptions, _this.chartType, _this.chartData, _this._element);
+        });
+        // setTimeout(() => this.drawGraph(this.chartOptions,this.chartType,this.chartData,this._element),1000);
     };
     GoogleChart.prototype.drawGraph = function (chartOptions, chartType, chartData, ele) {
         var data = google.visualization.arrayToDataTable(chartData);
         var numberFormatter = new google.visualization.NumberFormat({ fractionDigits: 2 });
         numberFormatter.format(data, 1);
         numberFormatter.format(data, 2);
-        var timeFormatter = new google.visualization.DateFormat({ pattern: 'MMM dd - hh:mm' });
+        var timeFormatter = new google.visualization.DateFormat({ pattern: 'MMM dd - HH:mm' });
         timeFormatter.format(data, 0);
         google.charts.setOnLoadCallback(drawChart);
         function drawChart() {
@@ -52,6 +56,10 @@ var GoogleChart = (function () {
         core_1.Input('chartData'), 
         __metadata('design:type', Object)
     ], GoogleChart.prototype, "chartData", void 0);
+    __decorate([
+        core_1.Input('refreshRequest'), 
+        __metadata('design:type', core_1.EventEmitter)
+    ], GoogleChart.prototype, "refreshRequest", void 0);
     GoogleChart = __decorate([
         core_1.Directive({
             selector: '[GoogleChart]',
@@ -61,3 +69,4 @@ var GoogleChart = (function () {
     return GoogleChart;
 }());
 exports.GoogleChart = GoogleChart;
+//# sourceMappingURL=angular2-google-chart.directive.js.map

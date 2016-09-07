@@ -27,3 +27,4 @@ var AboutComponent = (function () {
     return AboutComponent;
 }());
 exports.AboutComponent = AboutComponent;
+//# sourceMappingURL=about.component.js.map
