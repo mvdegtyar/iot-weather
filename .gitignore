@@ -222,4 +222,7 @@ _Pvt_Extensions
 **/bower_components/
 **/.tmp
 
+/WeatherWeb/typings
+/WeatherWeb/wwwroot/libs
 WeatherWeb/appsettings.json
+/WeatherWeb/wwwroot/lib

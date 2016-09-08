@@ -1,0 +1,9 @@
+<div class="container">
+    <div class="controls clearfix">
+        <button class="btn btn-link pull-right" role="link" type="button" (click)="refresh()" value="Refresh">Refresh</button>
+    </div>
+    <div class="loading" *ngIf="loading">
+        <md-spinner class="center-block">Loading</md-spinner>
+    </div>
+    <div id="line_chart" [chartData]="line_ChartData" [chartOptions]="line_ChartOptions" [refreshRequest] ="refreshRequest" chartType="AreaChart" GoogleChart></div>
+</div>

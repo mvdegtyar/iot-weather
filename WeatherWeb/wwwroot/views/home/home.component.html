@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="controls clearfix">
+        <button class="btn btn-link pull-right" role="link" type="button" (click)="refresh()" value="Refresh">Refresh</button>
+    </div>
+   
+    <div class="loading" *ngIf="loading">
+        <md-spinner class="center-block">Loading</md-spinner>
+    </div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+
+                            <th>Time</th>
+                            <th>Temperature</th>
+                            <th>Humidity</th>
+                            <th>Pressure</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of values">
+
+                            <td>{{data.time | date:"MM/dd - HH:mm"}}</td>
+                            <td>{{data.temperature | number:"1.2-2"}}</td>
+                            <td>{{data.humidity | number:"1.2-2"}}</td>
+                            <td>{{data.pressure | number:"1.0-0"}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+</div>
