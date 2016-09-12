@@ -14,6 +14,10 @@ export class ChartComponent implements OnInit {
     public loading: boolean;
     public message: string;
     public values: any[];
+    public currentAvailable: boolean;
+    public currentTemp: number;
+    public currentHumidity: number;
+
     public refreshRequest = new EventEmitter<any>();
 
     public line_ChartOptions = {
@@ -29,8 +33,9 @@ export class ChartComponent implements OnInit {
         },
         vAxes: {
             // Adds titles to each axis.
-            0: { title: 'Temps (Celsius)' },
-            1: { title: 'Humidity' }
+            0: { title: 'Humidity (%)' },
+            1: { title: 'Temps (Celsius)' }
+            
         },
         hAxis: {
             gridlines: {
@@ -57,14 +62,26 @@ export class ChartComponent implements OnInit {
 
         vals.push([
             { label: 'Time', type: 'date' },
-            { label: 'temperature', type: 'number' },
             { label: 'humidity', type: 'number' },
+            { label: 'temperature', type: 'number' }
         ]);
 
         data.forEach(function (dt) {
             var time = new Date(dt.time);
-            vals.push([time, dt.temperature, dt.humidity]);
+            vals.push([time, dt.humidity, dt.temperature]);
         });
+
+        this.currentAvailable = false;
+        if (data.length) {
+            var timeDiff = new Date().getTime() - (new Date(data[0].time)).getTime();
+            var hoursDiff = timeDiff / (1000 * 3600);
+
+            if (hoursDiff < 1) {
+                this.currentAvailable = true;
+                this.currentTemp = data[0].temperature;
+                this.currentHumidity = data[0].humidity;
+            }
+        }
 
         this.line_ChartData = vals;
         this.refreshRequest.next(vals);

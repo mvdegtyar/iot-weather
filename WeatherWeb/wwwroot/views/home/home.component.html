@@ -22,7 +22,7 @@
                     <tbody>
                         <tr *ngFor="let data of values">
 
-                            <td>{{data.time | date:"MM/dd - HH:mm"}}</td>
+                            <td>{{data.time | date:"dd MMM - HH:mm"}}</td>
                             <td>{{data.temperature | number:"1.2-2"}}</td>
                             <td>{{data.humidity | number:"1.2-2"}}</td>
                             <td>{{data.pressure | number:"1.0-0"}}</td>

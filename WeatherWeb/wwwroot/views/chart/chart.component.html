@@ -5,5 +5,16 @@
     <div class="loading" *ngIf="loading">
         <md-spinner class="center-block">Loading</md-spinner>
     </div>
+    <div class="clearfix">
+        <div *ngIf="currentAvailable" class="pull-left text-left">
+            <b>Now:</b>
+            <div>
+                <b>Temperature:</b> {{currentTemp | number : '1.2-2'}} Celsius
+            </div>
+            <div>
+                <b>Humidity:</b> {{currentHumidity | number : '1.2-2'}} %
+            </div>
+        </div>
+    </div>
     <div id="line_chart" [chartData]="line_ChartData" [chartOptions]="line_ChartOptions" [refreshRequest] ="refreshRequest" chartType="AreaChart" GoogleChart></div>
 </div>
